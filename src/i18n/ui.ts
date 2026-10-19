@@ -36,7 +36,7 @@ export const projectMeta = {
   portfolio: {
     image: 'portfolio.png',
     fit: 'cover',
-    repo: '',
+    repo: 'https://github.com/pabloccf/portfolio-personal.git',
     tags: ['Astro', 'TypeScript', 'CSS', 'Lenis', 'Claude Code'],
   },
 } as const;
