@@ -1,0 +1,199 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import SectionHead from './SectionHead.astro';
+import profilePhoto from '../assets/profile.jpg';
+import { getUI, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getUI(lang).about;
+---
+
+<section class="section about" id="about">
+  <div class="container about__inner">
+    <div class="about__media reveal">
+      <figure class="about__photo">
+        <Image
+          src={profilePhoto}
+          alt={t.photoAlt}
+          class="about__img"
+          width={720}
+          widths={[320, 480, 720]}
+          sizes="(max-width: 860px) 280px, 340px"
+          format="webp"
+          loading="lazy"
+        />
+        <figcaption class="about__caption">
+          <Icon name="pin" />
+          {t.photoCaption}
+        </figcaption>
+      </figure>
+    </div>
+
+    <div class="about__text">
+      <SectionHead eyebrow={t.eyebrow} title={t.title} />
+      {t.paragraphs.map((p) => <p class="about__p reveal" set:html={p} />)}
+
+      <div class="about__meta reveal">
+        <div class="about__block card">
+          <p class="label">{t.skillsTitle}</p>
+          <ul class="about__list">
+            {t.skills.map((s) => <li>{s}</li>)}
+          </ul>
+        </div>
+        <div class="about__block card">
+          <p class="label">{t.langsTitle}</p>
+          <ul class="about__list">
+            {
+              t.langs.map((l) => (
+                <li>
+                  {l.name} <span class="about__level">{l.level}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about__inner {
+    display: grid;
+    grid-template-columns: 0.75fr 1.25fr;
+    gap: var(--space-8);
+    align-items: start;
+  }
+  .about__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .about__text :global(.section-head) {
+    margin-bottom: var(--space-3);
+  }
+  .about__p {
+    color: var(--text-muted);
+    font-size: 1.0625rem;
+    max-width: 64ch;
+  }
+  .about__p :global(strong) {
+    color: var(--text);
+    font-weight: var(--fw-bold);
+  }
+
+  .about__meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+  }
+  .about__block {
+    padding: var(--space-5);
+  }
+  .about__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    font-weight: var(--fw-semibold);
+  }
+  .about__list li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-left: 1rem;
+    position: relative;
+  }
+  .about__list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.65em;
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: var(--gradient);
+  }
+  .about__level {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-medium);
+    color: var(--text-muted);
+    text-align: right;
+  }
+
+  .about__media {
+    position: sticky;
+    top: 7rem;
+    display: flex;
+    justify-content: center;
+  }
+  .about__photo {
+    position: relative;
+    width: 100%;
+    max-width: 340px;
+    margin: 0;
+    padding: 6px;
+    border-radius: calc(var(--radius-lg) + 6px);
+    background: var(--gradient);
+    box-shadow: var(--shadow-lg);
+    transform: rotate(-2deg);
+    transition: transform var(--transition-slow);
+  }
+  .about__photo:hover {
+    transform: rotate(0deg) scale(1.01);
+  }
+  .about__photo :global(.about__img) {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: center 30%;
+    border-radius: var(--radius-lg);
+  }
+  .about__caption {
+    position: absolute;
+    left: 50%;
+    bottom: -1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    box-shadow: var(--shadow-md);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    white-space: nowrap;
+    transform: translateX(-50%) rotate(2deg);
+  }
+  .about__caption :global(svg) {
+    width: 0.9rem;
+    height: 0.9rem;
+    color: var(--accent);
+  }
+
+  @media (max-width: 860px) {
+    .about__inner {
+      grid-template-columns: 1fr;
+      gap: var(--space-7);
+    }
+    .about__media {
+      position: static;
+    }
+    .about__photo {
+      max-width: 280px;
+    }
+  }
+  @media (max-width: 560px) {
+    .about__meta {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

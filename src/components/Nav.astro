@@ -1,0 +1,351 @@
+---
+import Icon from './Icon.astro';
+import { getUI, localePath, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getUI(lang);
+const otherLang: Lang = lang === 'es' ? 'en' : 'es';
+
+const links = [
+  { href: '#about', label: t.nav.about },
+  { href: '#experience', label: t.nav.experience },
+  { href: '#projects', label: t.nav.projects },
+  { href: '#tech', label: t.nav.tech },
+  { href: '#community', label: t.nav.community },
+  { href: '#contact', label: t.nav.contact },
+];
+---
+
+<a class="skip-link" href="#main">{t.nav.skip}</a>
+<div class="progress" aria-hidden="true"><span data-progress></span></div>
+
+<header class="nav" data-nav>
+  <nav class="nav__bar" aria-label="Main">
+    <a class="brand" href="#home" aria-label="Pablo López Gosálvez">
+      <span class="brand__tag">&lt;/</span>Pablo<span class="brand__tag">&gt;</span>
+    </a>
+
+    <ul class="nav__links" id="nav-menu">
+      {
+        links.map((l) => (
+          <li>
+            <a href={l.href} data-nav-link>
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="nav__actions">
+      <a
+        class="nav__btn nav__lang"
+        href={localePath(otherLang)}
+        hreflang={otherLang}
+        lang={otherLang}
+        aria-label={t.nav.switchLang}
+        title={t.nav.switchLang}
+      >
+        <Icon name="globe" />
+        <span>{otherLang.toUpperCase()}</span>
+      </a>
+
+      <button
+        class="nav__btn nav__theme"
+        type="button"
+        data-theme-toggle
+        data-label-light={t.nav.themeToLight}
+        data-label-dark={t.nav.themeToDark}
+        aria-label={t.nav.themeToDark}
+        title={t.nav.themeToDark}
+      >
+        <Icon name="sun" class="theme-icon theme-icon--sun" />
+        <Icon name="moon" class="theme-icon theme-icon--moon" />
+      </button>
+
+      <button
+        class="nav__btn nav__burger"
+        type="button"
+        aria-label={t.nav.menu}
+        aria-controls="nav-menu"
+        aria-expanded="false"
+        data-burger
+      >
+        <span class="nav__burger-box" aria-hidden="true">
+          <span class="nav__burger-line"></span>
+          <span class="nav__burger-line"></span>
+        </span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<script>
+  const nav = document.querySelector<HTMLElement>('[data-nav]')!;
+  const burger = nav.querySelector<HTMLButtonElement>('[data-burger]')!;
+  const themeBtn = nav.querySelector<HTMLButtonElement>('[data-theme-toggle]')!;
+  const progress = document.querySelector<HTMLElement>('[data-progress]')!;
+  const root = document.documentElement;
+
+  // ---- Theme ----
+  const syncThemeLabel = () => {
+    const isDark = root.dataset.theme === 'dark';
+    const label = (isDark ? themeBtn.dataset.labelLight : themeBtn.dataset.labelDark) ?? '';
+    themeBtn.setAttribute('aria-label', label);
+    themeBtn.title = label;
+  };
+  syncThemeLabel();
+  themeBtn.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem('theme', next);
+    } catch {}
+    syncThemeLabel();
+  });
+  // Follow the OS setting until the user picks a theme explicitly
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem('theme');
+    } catch {}
+    if (saved) return;
+    root.dataset.theme = e.matches ? 'dark' : 'light';
+    syncThemeLabel();
+  });
+
+  // ---- Mobile menu ----
+  const setOpen = (open: boolean) => {
+    nav.classList.toggle('is-open', open);
+    burger.setAttribute('aria-expanded', String(open));
+  };
+  burger.addEventListener('click', () => setOpen(!nav.classList.contains('is-open')));
+  document.addEventListener('nav:close', () => setOpen(false));
+  document.addEventListener('keydown', (e) => e.key === 'Escape' && setOpen(false));
+
+  // ---- Scrolled state + reading progress ----
+  const onScroll = () => {
+    nav.classList.toggle('is-scrolled', window.scrollY > 8);
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    progress.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
+  };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // ---- Active section highlight ----
+  const navLinks = [...nav.querySelectorAll<HTMLAnchorElement>('[data-nav-link]')];
+  // #home has no nav link, so reaching it clears the highlight
+  const sections = ['#home', ...navLinks.map((a) => a.getAttribute('href')!)]
+    .map((id) => document.querySelector<HTMLElement>(id))
+    .filter((s): s is HTMLElement => !!s);
+  const spy = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const id = `#${entry.target.id}`;
+        navLinks.forEach((a) => a.classList.toggle('is-active', a.getAttribute('href') === id));
+      }
+    },
+    { rootMargin: '-45% 0px -50% 0px' }
+  );
+  sections.forEach((s) => spy.observe(s));
+</script>
+
+<style>
+  .progress {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 101;
+    height: 3px;
+    pointer-events: none;
+  }
+  .progress span {
+    display: block;
+    height: 100%;
+    background: var(--gradient);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 0.75rem var(--page-x) 0;
+  }
+  .nav__bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    max-width: var(--container);
+    height: 3.5rem;
+    margin-inline: auto;
+    padding: 0 0.5rem 0 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    background: color-mix(in srgb, var(--surface) 72%, transparent);
+    backdrop-filter: saturate(160%) blur(14px);
+    -webkit-backdrop-filter: saturate(160%) blur(14px);
+    transition: box-shadow var(--transition), border-color var(--transition), background-color var(--transition);
+  }
+  .nav.is-scrolled .nav__bar {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
+  }
+
+  .brand {
+    font-family: var(--font-mono);
+    font-weight: var(--fw-bold);
+    font-size: 1.05rem;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .brand:hover {
+    color: var(--text);
+  }
+  .brand__tag {
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .nav__links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .nav__links a {
+    display: block;
+    padding: 0.45rem 0.85rem;
+    border-radius: var(--radius-full);
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    font-weight: var(--fw-semibold);
+    transition: color var(--transition), background-color var(--transition);
+  }
+  .nav__links a:hover {
+    color: var(--text);
+    background: var(--surface-2);
+  }
+  .nav__links a.is-active {
+    color: var(--link);
+    background: var(--accent-soft);
+  }
+
+  .nav__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .nav__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    height: 2.5rem;
+    min-width: 2.5rem;
+    padding: 0 0.75rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-full);
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-bold);
+    transition: color var(--transition), border-color var(--transition), background-color var(--transition);
+  }
+  .nav__btn:hover {
+    color: var(--link);
+    border-color: var(--accent);
+  }
+  .nav__btn :global(svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+  .nav__theme {
+    position: relative;
+    padding: 0;
+  }
+  .nav__theme :global(.theme-icon) {
+    position: absolute;
+    width: 1.1rem;
+    height: 1.1rem;
+    transition: transform var(--transition-slow), opacity var(--transition);
+  }
+  /* Show the icon of the theme you would switch to */
+  :global(:root[data-theme='dark']) .nav__theme :global(.theme-icon--moon),
+  :global(:root:not([data-theme='dark'])) .nav__theme :global(.theme-icon--sun) {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+  }
+
+  .nav__burger {
+    display: none;
+    padding: 0;
+  }
+  .nav__burger-box {
+    display: grid;
+    gap: 5px;
+    width: 16px;
+  }
+  .nav__burger-line {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: currentColor;
+    border-radius: var(--radius-full);
+    transition: transform var(--transition);
+  }
+  .nav__burger[aria-expanded='true'] .nav__burger-line:nth-child(1) {
+    transform: translateY(3.5px) rotate(45deg);
+  }
+  .nav__burger[aria-expanded='true'] .nav__burger-line:nth-child(2) {
+    transform: translateY(-3.5px) rotate(-45deg);
+  }
+
+  @media (max-width: 920px) {
+    .nav__burger {
+      display: inline-flex;
+    }
+    .nav__links {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.15rem;
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: color-mix(in srgb, var(--surface) 94%, transparent);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px) scale(0.98);
+      transform-origin: top;
+      pointer-events: none;
+      transition: opacity var(--transition), transform var(--transition), visibility var(--transition);
+    }
+    .nav.is-open .nav__links {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      pointer-events: auto;
+    }
+    .nav__links a {
+      padding: 0.8rem 1rem;
+      border-radius: var(--radius-md);
+      font-size: var(--fs-base);
+    }
+  }
+</style>

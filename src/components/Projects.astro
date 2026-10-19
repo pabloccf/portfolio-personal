@@ -1,0 +1,168 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Icon from './Icon.astro';
+import SectionHead from './SectionHead.astro';
+import { getUI, projectMeta, type Lang, type ProjectId } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getUI(lang).projects;
+
+const images = import.meta.glob<{ default: ImageMetadata }>('../assets/projects/*.{png,jpg,jpeg,webp}', { eager: true });
+const imageFor = (file: string) => images[`../assets/projects/${file}`].default;
+
+const projects = (Object.keys(projectMeta) as ProjectId[]).map((id) => ({
+  id,
+  ...projectMeta[id],
+  ...t.items[id],
+}));
+---
+
+<section class="section projects" id="projects">
+  <div class="container">
+    <SectionHead eyebrow={t.eyebrow} title={t.title} />
+
+    <ul class="projects__grid">
+      {
+        projects.map((p, i) => (
+          <li class="project card reveal" style={`--delay: ${i * 0.08}s`}>
+            <div class:list={['project__media', `project__media--${p.fit}`]}>
+              <Image
+                src={imageFor(p.image)}
+                alt=""
+                class="project__img"
+                width={640}
+                widths={[320, 640]}
+                sizes="(max-width: 720px) 100vw, 360px"
+                format="webp"
+                loading="lazy"
+              />
+              <span class="project__badge">{p.badge}</span>
+            </div>
+            <div class="project__body">
+              <h3 class="project__name">{p.name}</h3>
+              <p class="project__desc">{p.desc}</p>
+              <ul class="project__tags">
+                {p.tags.map((tag) => (
+                  <li class="chip">{tag}</li>
+                ))}
+              </ul>
+              {p.repo && (
+                <a class="project__link" href={p.repo} target="_blank" rel="noopener noreferrer">
+                  <Icon name="github" />
+                  {t.repo}
+                  <span class="sr-only">— {p.name}</span>
+                  <Icon name="arrowRight" class="project__arrow" />
+                </a>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .projects__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+  @media (max-width: 720px) {
+    .projects__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .project {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .project__media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+    background: #ffffff;
+  }
+  .project__media :global(.project__img) {
+    width: 100%;
+    height: 100%;
+    transition: transform var(--transition-slow);
+  }
+  .project__media--contain :global(.project__img) {
+    object-fit: contain;
+    padding: 1.25rem;
+  }
+  .project__media--cover :global(.project__img) {
+    object-fit: cover;
+  }
+  .project:hover .project__media :global(.project__img) {
+    transform: scale(1.05);
+  }
+  .project__badge {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-full);
+    background: var(--gradient);
+    color: var(--on-gradient);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: var(--fw-bold);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .project__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: var(--space-5);
+  }
+  .project__name {
+    font-size: var(--fs-xl);
+    margin-bottom: var(--space-2);
+  }
+  .project__desc {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    margin-bottom: var(--space-4);
+  }
+  .project__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: var(--space-5);
+  }
+  .project__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: auto;
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-sm);
+  }
+  /* Whole card is clickable via the link's pseudo-element */
+  .project__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+  .project__link :global(svg) {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+  .project__link :global(.project__arrow) {
+    transition: transform var(--transition);
+  }
+  .project:hover .project__link :global(.project__arrow) {
+    transform: translateX(4px);
+  }
+</style>

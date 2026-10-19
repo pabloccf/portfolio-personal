@@ -1,0 +1,106 @@
+---
+import Icon from './Icon.astro';
+import SectionHead from './SectionHead.astro';
+import { getUI, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getUI(lang).tech;
+---
+
+<section class="section tech" id="tech">
+  <div class="container">
+    <SectionHead eyebrow={t.eyebrow} title={t.title} />
+
+    <div class="tech__grid">
+      {
+        t.groups.map((group, i) => (
+          <article class="tech__card card reveal" style={`--delay: ${i * 0.06}s`}>
+            <header class="tech__head">
+              <span class="tech__icon">
+                <Icon name={group.icon} />
+              </span>
+              <h3 class="tech__title">{group.title}</h3>
+              <span class="tech__count">{String(group.items.length).padStart(2, '0')}</span>
+            </header>
+            <ul class="tech__list">
+              {group.items.map((item) => (
+                <li class="tech__item">{item}</li>
+              ))}
+            </ul>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .tech__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+  .tech__card {
+    padding: var(--space-5) var(--space-6) var(--space-6);
+  }
+  .tech__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+  }
+  .tech__icon {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-md);
+    background: var(--gradient);
+    color: var(--on-gradient);
+  }
+  .tech__icon :global(svg) {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+  .tech__title {
+    font-size: 1.1rem;
+  }
+  .tech__count {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+  }
+  .tech__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .tech__item {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    background: var(--surface-2);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-semibold);
+    transition: border-color var(--transition), color var(--transition), background-color var(--transition);
+  }
+  .tech__item:hover {
+    border-color: var(--accent);
+    color: var(--link);
+    background: var(--accent-soft);
+  }
+
+  @media (max-width: 760px) {
+    .tech__grid {
+      grid-template-columns: 1fr;
+    }
+    .tech__card {
+      padding: var(--space-5);
+    }
+  }
+</style>

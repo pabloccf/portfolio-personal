@@ -1,0 +1,398 @@
+---
+import Icon from './Icon.astro';
+import { getUI, cvPath, profile, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getUI(lang).hero;
+---
+
+<section class="hero" id="home">
+  <div class="hero__glow" aria-hidden="true"></div>
+
+  <div class="hero__inner container">
+    <div class="hero__content">
+      <p class="hero__status reveal">
+        <span class="hero__dot"></span>
+        {t.badge}
+      </p>
+
+      <h1 class="hero__title">
+        <span class="hero__name reveal" style="--delay: .06s">{profile.name}</span>
+        <span class="hero__role reveal" style="--delay: .14s">
+          <span class="sr-only">{t.typed.join(', ')}</span>
+          {/* Invisible copies of every phrase reserve the height of the tallest one, so typing never shifts the layout */}
+          {t.typed.map((w) => <span class="hero__ghost" aria-hidden="true">{w}</span>)}
+          <span class="hero__live" aria-hidden="true"
+            ><span class="hero__typed gradient-text" data-typed={JSON.stringify(t.typed)}>{t.typed[0]}</span
+            ><span class="hero__caret"></span></span
+          >
+        </span>
+      </h1>
+
+      <p class="hero__desc reveal" style="--delay: .22s" set:html={t.desc} />
+
+      <dl class="hero__stats reveal" style="--delay: .3s">
+        {
+          t.stats.map((s) => (
+            <div class="hero__stat">
+              <dt class="hero__stat-label">{s.label}</dt>
+              <dd class="hero__stat-value gradient-text">{s.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <div class="hero__actions reveal" style="--delay: .38s">
+        <a class="btn btn--primary" href="#projects">
+          {t.ctaProjects}
+          <Icon name="arrowRight" />
+        </a>
+        <a class="btn btn--secondary" href={cvPath(lang)} download>
+          <Icon name="download" />
+          {t.ctaCv}
+        </a>
+        <span class="hero__divider" aria-hidden="true"></span>
+        <a class="hero__social" href={profile.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+          <Icon name="github" />
+        </a>
+        <a class="hero__social" href={profile.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+          <Icon name="linkedin" />
+        </a>
+      </div>
+    </div>
+
+    <figure class="code reveal" style="--delay: .3s" aria-hidden="true">
+      <div class="code__bar">
+        <span class="code__dots"><i></i><i></i><i></i></span>
+        <span class="code__file">Pablo.cs</span>
+      </div>
+      <pre class="code__body"><code><span class="c">{t.codeComment}</span>
+<span class="k">public sealed class</span> <span class="t">Pablo</span> : <span class="t">{t.code.base}</span>
+{'{'}
+  <span class="k">public</span> <span class="t">string</span> {t.code.location} <span class="k">=&gt;</span> <span class="s">"{t.codeLocation}"</span>;
+
+  <span class="k">public</span> <span class="t">string</span>[] {t.code.stack} <span class="k">=&gt;</span>
+    [<span class="s">".NET"</span>, <span class="s">"Angular"</span>, <span class="s">"Java"</span>, <span class="s">"SQL"</span>];
+
+  <span class="k">public</span> <span class="t">string</span>[] {t.code.practices} <span class="k">=&gt;</span>
+    [<span class="s">"DDD"</span>, <span class="s">"CQRS"</span>, <span class="s">"{t.codeHexagonal}"</span>, <span class="s">"MVC"</span>];
+
+  <span class="k">public</span> <span class="t">string</span>[] {t.code.ai} <span class="k">=&gt;</span>
+    [{t.code.aiItems.map((item, i) => <>{i > 0 && ', '}<span class="s">"{item}"</span></>)}];
+
+  <span class="k">public</span> <span class="t">bool</span> {t.code.openToWork} <span class="k">=&gt;</span> <span class="b">true</span>;
+{'}'}</code></pre>
+    </figure>
+  </div>
+</section>
+
+<script>
+  // Typewriter for the hero role, inspired by typed.js but dependency-free
+  const el = document.querySelector<HTMLElement>('[data-typed]');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (el && !reduce) {
+    const words: string[] = JSON.parse(el.dataset.typed!);
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    (async () => {
+      await sleep(2200);
+      for (let i = 0; ; i = (i + 1) % words.length) {
+        const current = words[i];
+        const next = words[(i + 1) % words.length];
+        for (let n = current.length; n >= 0; n--) {
+          el.textContent = current.slice(0, n);
+          await sleep(45);
+        }
+        await sleep(300);
+        for (let n = 1; n <= next.length; n++) {
+          el.textContent = next.slice(0, n);
+          await sleep(85);
+        }
+        await sleep(2000);
+      }
+    })();
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: calc(100svh - 4.25rem);
+    padding-block: var(--space-8) var(--space-9);
+  }
+  .hero__glow {
+    position: absolute;
+    inset: -6rem 0 -4rem;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    mask-image: linear-gradient(to bottom, #000 65%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, #000 65%, transparent);
+    background:
+      radial-gradient(40rem 26rem at 85% 20%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 70%),
+      radial-gradient(30rem 22rem at 10% 90%, color-mix(in srgb, var(--accent-2) 12%, transparent), transparent 70%);
+  }
+
+  .hero__inner {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    align-items: center;
+    gap: var(--space-8);
+  }
+
+  .hero__status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-5);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+  }
+  .hero__dot {
+    position: relative;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 0 3px var(--success-soft);
+  }
+  .hero__dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--success);
+    animation: pulse-ring 2.4s ease-out infinite;
+  }
+
+  .hero__title {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+  }
+  /* Name presented as a label card, role typed underneath */
+  .hero__name {
+    display: inline-block;
+    padding: 0.35rem 0.8rem;
+    border-radius: var(--radius-sm);
+    background: var(--text);
+    color: var(--bg);
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 0.9rem + 0.4vw, 1.2rem);
+    font-weight: var(--fw-bold);
+    letter-spacing: 0;
+    transform: rotate(-1.5deg);
+  }
+  .hero__role {
+    display: grid;
+    width: 100%;
+    font-size: clamp(2.3rem, 1.3rem + 4.2vw, 4rem);
+    font-weight: var(--fw-bold);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+  }
+  .hero__ghost,
+  .hero__live {
+    grid-area: 1 / 1;
+    padding-bottom: 0.08em;
+  }
+  .hero__ghost {
+    visibility: hidden;
+  }
+  .hero__caret {
+    display: inline-block;
+    width: 0.08em;
+    height: 0.9em;
+    margin-left: 0.06em;
+    vertical-align: -0.08em;
+    border-radius: 2px;
+    background: var(--accent-2);
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .hero__desc {
+    max-width: 52ch;
+    margin-bottom: var(--space-6);
+    font-size: var(--fs-lg);
+    color: var(--text-muted);
+  }
+  .hero__desc :global(strong) {
+    color: var(--text);
+    font-weight: var(--fw-bold);
+  }
+
+  .hero__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+    margin: 0 0 var(--space-6);
+  }
+  .hero__stat {
+    display: flex;
+    flex-direction: column-reverse;
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--border-strong);
+  }
+  .hero__stat-value {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 1.3rem + 1vw, 2.1rem);
+    font-weight: var(--fw-bold);
+    line-height: 1.1;
+  }
+  .hero__stat-label {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .hero__divider {
+    width: 1px;
+    height: 1.75rem;
+    margin-inline: var(--space-1);
+    background: var(--border-strong);
+  }
+  .hero__social {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
+    transition: color var(--transition), border-color var(--transition), transform var(--transition);
+  }
+  .hero__social:hover {
+    color: var(--link);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .hero__social :global(svg) {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  /* ---- Code window ---- */
+  .code {
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    transform: rotate(1.5deg);
+  }
+  .code__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .code__dots {
+    display: flex;
+    gap: 6px;
+  }
+  .code__dots i {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--border-strong);
+  }
+  .code__dots i:nth-child(1) {
+    background: #f87171;
+  }
+  .code__dots i:nth-child(2) {
+    background: #fbbf24;
+  }
+  .code__dots i:nth-child(3) {
+    background: #4ade80;
+  }
+  .code__file {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+  }
+  .code__body {
+    margin: 0;
+    padding: 1.25rem 1.25rem 1.5rem;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    line-height: 1.75;
+    color: var(--text);
+  }
+  .code .c {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .code .k {
+    color: #c026d3;
+  }
+  .code .t {
+    color: #0891b2;
+  }
+  .code .s {
+    color: #c2410c;
+  }
+  .code .b {
+    color: #16a34a;
+  }
+  :global(:root[data-theme='dark']) .code .k {
+    color: #e879f9;
+  }
+  :global(:root[data-theme='dark']) .code .t {
+    color: #67e8f9;
+  }
+  :global(:root[data-theme='dark']) .code .s {
+    color: #fdba74;
+  }
+  :global(:root[data-theme='dark']) .code .b {
+    color: #86efac;
+  }
+
+  @media (max-width: 960px) {
+    .hero__inner {
+      grid-template-columns: 1fr;
+    }
+    .code {
+      max-width: 34rem;
+      transform: none;
+    }
+  }
+  @media (max-width: 560px) {
+    .hero {
+      padding-top: var(--space-6);
+    }
+    .hero__stats {
+      gap: var(--space-4);
+    }
+    .hero__actions .btn {
+      flex: 1 1 auto;
+    }
+    .hero__divider {
+      display: none;
+    }
+  }
+</style>

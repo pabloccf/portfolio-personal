@@ -1,0 +1,427 @@
+@import '@fontsource-variable/sora';
+@import '@fontsource-variable/manrope';
+@import '@fontsource-variable/jetbrains-mono';
+
+/* ---------- Design tokens ---------- */
+:root {
+  --font-body: 'Manrope Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Sora Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', Consolas, monospace;
+
+  --fs-xs: 0.8125rem;
+  --fs-sm: 0.9375rem;
+  --fs-base: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.375rem;
+  --fs-2xl: clamp(1.9rem, 1.3rem + 2.6vw, 2.9rem);
+
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  --lh-tight: 1.12;
+  --lh-snug: 1.35;
+  --lh-normal: 1.7;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 5.5rem;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-full: 999px;
+
+  --container: 70rem;
+  --page-x: clamp(1rem, 4vw, 2.5rem);
+  --nav-offset: 5.5rem;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --transition: 0.25s var(--ease-out);
+  --transition-slow: 0.5s var(--ease-out);
+
+  /* Light theme — warm neutrals with a sunset accent */
+  --bg: #fbfaf8;
+  --bg-dots: rgba(28, 25, 23, 0.07);
+  --surface: #ffffff;
+  --surface-2: #f5f2ee;
+  --surface-hover: #efebe5;
+  --border: #ebe6df;
+  --border-strong: #d9d2c7;
+  --text: #1c1917;
+  --text-muted: #6b635b;
+  --accent: #f97316;
+  --accent-2: #f43f5e;
+  --accent-soft: rgba(249, 115, 22, 0.1);
+  --link: #c2410c;
+  --gradient: linear-gradient(120deg, #ea580c 0%, #e11d48 100%);
+  --on-gradient: #ffffff;
+  --success: #16a34a;
+  --success-soft: rgba(22, 163, 74, 0.14);
+  --spot: rgba(249, 115, 22, 0.1);
+  --shadow-sm: 0 1px 2px rgba(41, 37, 36, 0.06);
+  --shadow-md: 0 10px 30px -12px rgba(41, 37, 36, 0.18);
+  --shadow-lg: 0 30px 60px -20px rgba(41, 37, 36, 0.28);
+  --shadow-glow: 0 12px 32px -10px rgba(244, 63, 94, 0.45);
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #0e0c0b;
+  --bg-dots: rgba(255, 245, 235, 0.06);
+  --surface: #171412;
+  --surface-2: #1f1b18;
+  --surface-hover: #29241f;
+  --border: #2a2521;
+  --border-strong: #3b342e;
+  --text: #f6f2ed;
+  --text-muted: #a89f95;
+  --accent: #fb923c;
+  --accent-2: #fb7185;
+  --accent-soft: rgba(251, 146, 60, 0.12);
+  --link: #fdba74;
+  --gradient: linear-gradient(120deg, #fb923c 0%, #fb7185 100%);
+  --on-gradient: #1c1917;
+  --success: #4ade80;
+  --success-soft: rgba(74, 222, 128, 0.16);
+  --spot: rgba(251, 146, 60, 0.09);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 14px 34px -14px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 30px 70px -24px rgba(0, 0, 0, 0.8);
+  --shadow-glow: 0 12px 32px -10px rgba(251, 113, 133, 0.35);
+  color-scheme: dark;
+}
+
+/* ---------- Base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: var(--nav-offset);
+}
+
+/* Native fallback when Lenis is disabled (reduced motion / no JS) */
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.lenis) {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--bg-dots) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color var(--transition), color var(--transition);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+
+p {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+a:hover {
+  color: var(--accent-2);
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+:where([tabindex='-1']):focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+::selection {
+  background: var(--accent);
+  color: #1c1917;
+}
+
+.gradient-text {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ---------- Lenis ---------- */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ---------- Layout helpers ---------- */
+.container {
+  width: 100%;
+  max-width: calc(var(--container) + var(--page-x) * 2);
+  margin-inline: auto;
+  padding-inline: var(--page-x);
+}
+
+.section {
+  padding-block: var(--space-9);
+  scroll-margin-top: var(--nav-offset);
+}
+@media (max-width: 560px) {
+  .section {
+    padding-block: var(--space-8);
+  }
+}
+
+.section-head {
+  margin-bottom: var(--space-7);
+}
+.section-head__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--link);
+}
+.section-head__eyebrow::before {
+  content: '//';
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+.section-head__title {
+  font-size: var(--fs-2xl);
+  max-width: 22ch;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3em 0.7em;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition: color var(--transition), border-color var(--transition), background-color var(--transition);
+}
+
+/* Card with a soft glow that follows the pointer (coordinates set in Layout script) */
+.card {
+  position: relative;
+  isolation: isolate;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), var(--spot), transparent 60%);
+  opacity: 0;
+  transition: opacity var(--transition);
+  pointer-events: none;
+}
+.card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+.card:hover::before {
+  opacity: 1;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.85rem 1.4rem;
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color var(--transition), border-color var(--transition), color var(--transition),
+    transform var(--transition), box-shadow var(--transition), background-position var(--transition-slow);
+}
+.btn:hover {
+  transform: translateY(-2px);
+}
+.btn:active {
+  transform: translateY(0);
+}
+.btn svg {
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+  transition: transform var(--transition);
+}
+.btn--primary {
+  background: var(--gradient);
+  background-size: 160% 100%;
+  color: var(--on-gradient);
+  box-shadow: var(--shadow-glow);
+}
+.btn--primary:hover {
+  color: var(--on-gradient);
+  background-position: 100% 0;
+}
+.btn--primary:hover svg {
+  transform: translateX(3px);
+}
+.btn--secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.btn--secondary:hover {
+  color: var(--text);
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+
+/* ---------- Reveal on scroll ---------- */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(24px) scale(0.985);
+  filter: blur(4px);
+  transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out), filter 0.8s var(--ease-out);
+  transition-delay: var(--delay, 0s);
+}
+.js .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* ---------- Utilities ---------- */
+.skip-link {
+  position: absolute;
+  left: var(--space-4);
+  top: -100px;
+  z-index: 200;
+  padding: var(--space-2) var(--space-4);
+  background: var(--gradient);
+  color: var(--on-gradient) !important;
+  border-radius: var(--radius-full);
+  font-weight: var(--fw-bold);
+}
+.skip-link:focus {
+  top: var(--space-3);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}

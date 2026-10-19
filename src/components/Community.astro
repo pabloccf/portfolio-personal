@@ -1,0 +1,86 @@
+---
+import Icon from './Icon.astro';
+import SectionHead from './SectionHead.astro';
+import { getUI, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getUI(lang).community;
+const icons = ['users', 'mic'] as const;
+---
+
+<section class="section community" id="community">
+  <div class="container">
+    <SectionHead eyebrow={t.eyebrow} title={t.title} />
+
+    <div class="community__grid">
+      {
+        t.items.map((item, i) => (
+          <article class="community__card card reveal" style={`--delay: ${i * 0.08}s`}>
+            <span class="community__num" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <span class="community__icon">
+              <Icon name={icons[i % icons.length]} />
+            </span>
+            <p class="label">{item.tag}</p>
+            <h3 class="community__name">{item.name}</h3>
+            <p class="community__desc">{item.desc}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .community__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: var(--space-5);
+  }
+  .community__card {
+    overflow: hidden;
+    padding: var(--space-6);
+  }
+  .community__num {
+    position: absolute;
+    top: -0.15em;
+    right: 0.1em;
+    font-family: var(--font-display);
+    font-size: 7rem;
+    font-weight: var(--fw-bold);
+    line-height: 1;
+    color: var(--surface-2);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .community__icon {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: var(--space-5);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--accent);
+  }
+  .community__icon :global(svg) {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+  .community__card .label {
+    margin-bottom: var(--space-1);
+  }
+  .community__name {
+    font-size: var(--fs-xl);
+    margin-bottom: var(--space-3);
+  }
+  .community__desc {
+    color: var(--text-muted);
+  }
+</style>

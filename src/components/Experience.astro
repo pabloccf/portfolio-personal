@@ -1,0 +1,222 @@
+---
+import SectionHead from './SectionHead.astro';
+import { getUI, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = getUI(lang).experience;
+---
+
+<section class="section experience" id="experience">
+  <div class="container">
+    <SectionHead eyebrow={t.eyebrow} title={t.title} />
+
+    <ol class="jobs">
+      {
+        t.jobs.map((job) => (
+          <li class="job reveal">
+            <div class="job__when">
+              <span class="job__dates">{job.dates}</span>
+              <span class="job__duration">{job.duration}</span>
+              {job.current && (
+                <span class="job__current">
+                  <span class="job__pulse" aria-hidden="true" />
+                  {t.current}
+                </span>
+              )}
+            </div>
+            <article class="job__card card">
+              <p class="job__company">{job.company}</p>
+              <h3 class="job__role">{job.role}</h3>
+              <p class="job__summary">{job.summary}</p>
+              <ul class="job__tags" aria-label={t.techLabel}>
+                {job.tags.map((tag) => (
+                  <li class="chip">{tag}</li>
+                ))}
+              </ul>
+            </article>
+          </li>
+        ))
+      }
+    </ol>
+
+    <h3 class="experience__subtitle reveal">{t.educationTitle}</h3>
+    <ul class="edu">
+      {
+        t.education.map((ed, i) => (
+          <li class="edu__item card reveal" style={`--delay: ${i * 0.08}s`}>
+            <span class="edu__dates">{ed.dates}</span>
+            <h4 class="edu__role">{ed.role}</h4>
+            <p class="edu__place">{ed.company}</p>
+            {ed.summary && <p class="edu__summary">{ed.summary}</p>}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .jobs {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+  .job {
+    display: grid;
+    grid-template-columns: 11rem 1fr;
+    gap: var(--space-6);
+  }
+  .job__when {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-1);
+    padding-top: var(--space-5);
+    text-align: right;
+  }
+  /* Vertical gradient rule between dates and card */
+  .job__when::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: calc(var(--space-5) * -1);
+    right: calc(var(--space-6) / -2);
+    width: 2px;
+    border-radius: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent-2) 40%, var(--border) 100%);
+    opacity: 0.5;
+  }
+  .job:last-child .job__when::after {
+    bottom: 0;
+  }
+  .job__dates {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    font-weight: var(--fw-bold);
+    color: var(--text);
+  }
+  .job__duration {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+  }
+  .job__current {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: var(--space-2);
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-full);
+    background: var(--success-soft);
+    color: var(--success);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .job__pulse {
+    position: relative;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .job__pulse::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse-ring 2.4s ease-out infinite;
+  }
+
+  .job__card {
+    padding: var(--space-6);
+  }
+  .job__company {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0.04em;
+    color: var(--link);
+    margin-bottom: var(--space-1);
+  }
+  .job__role {
+    font-size: var(--fs-xl);
+    margin-bottom: var(--space-3);
+  }
+  .job__summary {
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+    max-width: 75ch;
+  }
+  .job__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+  }
+
+  .experience__subtitle {
+    font-size: var(--fs-xl);
+    margin: var(--space-8) 0 var(--space-5);
+  }
+  .edu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-4);
+  }
+  .edu__item {
+    padding: var(--space-5);
+  }
+  .edu__dates {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+  }
+  .edu__role {
+    font-size: 1.15rem;
+    margin: var(--space-2) 0 var(--space-1);
+  }
+  .edu__place {
+    color: var(--link);
+    font-weight: var(--fw-semibold);
+    font-size: var(--fs-sm);
+  }
+  .edu__summary {
+    margin-top: var(--space-2);
+    color: var(--text-muted);
+    font-size: var(--fs-sm);
+  }
+
+  @media (max-width: 760px) {
+    .job {
+      grid-template-columns: 1fr;
+      gap: var(--space-3);
+    }
+    .job__when {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-3);
+      padding-top: 0;
+      text-align: left;
+    }
+    .job__when::after {
+      display: none;
+    }
+    .job__current {
+      margin-top: 0;
+    }
+    .job__card {
+      padding: var(--space-5);
+    }
+  }
+</style>
